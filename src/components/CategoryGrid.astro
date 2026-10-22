@@ -1,0 +1,63 @@
+---
+import { CATEGORY_LIST, CATEGORY_META } from '../lib/categories';
+import { plural, withBase } from '../lib/utils';
+
+/**
+ * Плитки рубрик: иконка, название и число материалов.
+ * Ссылка ведёт в архив с уже применённым фильтром.
+ */
+interface Props {
+  /** Сколько материалов в каждой рубрике. */
+  counts: Record<string, number>;
+}
+
+const { counts } = Astro.props;
+
+const tiles = CATEGORY_LIST.map(name => ({
+  name,
+  meta: CATEGORY_META[name],
+  count: counts[name] ?? 0
+}));
+---
+
+<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+  {
+    tiles.map(tile => (
+      <li>
+        <a
+          href={`${withBase('/archive/')}?category=${tile.meta.slug}`}
+          class="card card-lift h-full gap-3 p-4"
+        >
+          <span
+            class:list={[
+              'flex h-11 w-11 items-center justify-center rounded-xl',
+              tile.meta.soft,
+              tile.meta.accent
+            ]}
+          >
+            <svg
+              class="h-6 w-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <Fragment set:html={tile.meta.icon} />
+            </svg>
+          </span>
+
+          <span class="font-serif text-sm font-bold leading-snug text-graphite-900">
+            {tile.name}
+          </span>
+
+          <span class="mt-auto text-xs text-graphite-500">
+            {tile.count} {plural(tile.count, 'материал', 'материала', 'материалов')}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>

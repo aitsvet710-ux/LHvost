@@ -1,0 +1,42 @@
+---
+/**
+ * Полоса метрик дайджеста: числа с подписями, разделённые тонкими линиями.
+ * Значения считаются на этапе сборки — никаких захардкоженных чисел.
+ */
+interface Props {
+  /** Всего материалов в архиве. */
+  materials: number;
+  /** Сколько рубрик наполнено материалами. */
+  categories: number;
+  /** Сколько источников включено в конвейер. */
+  sources: number;
+  /** Дата последнего обновления — уже отформатирована по-русски. */
+  updatedAt: string;
+}
+
+const { materials, categories, sources, updatedAt } = Astro.props;
+
+const items = [
+  { label: 'Материалов', value: String(materials) },
+  { label: 'Рубрик', value: String(categories) },
+  { label: 'Источников', value: String(sources) },
+  { label: 'Обновлено', value: updatedAt }
+];
+---
+
+<div
+  class="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-sand-200 bg-sand-200 shadow-card lg:grid-cols-4"
+>
+  {
+    items.map(item => (
+      <div class="bg-white px-5 py-5 text-center">
+        <p class="font-serif text-2xl font-bold leading-tight text-graphite-900 sm:text-3xl">
+          {item.value}
+        </p>
+        <p class="mt-1 text-xs font-medium uppercase tracking-wide text-graphite-500">
+          {item.label}
+        </p>
+      </div>
+    ))
+  }
+</div>

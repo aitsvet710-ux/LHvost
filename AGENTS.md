@@ -19,7 +19,7 @@ TypeScript, деплой на GitHub Pages.
 | `src/lib/data.ts` | Доступ к материалам: список, свежий выпуск, поиск по слагу |
 | `src/lib/categories.ts` | Справочник рубрик: слаг, цвета, иконки |
 | `src/lib/covers.ts` | Обложки: путь по рубрике, точка расширения для генерации |
-| `src/components/` | Header, Footer, MaterialCard, Tag, Filters |
+| `src/components/` | Header, Footer, MaterialCard, Tag, Filters, StatsBand, CategoryGrid |
 | `src/layouts/BaseLayout.astro` | Каркас страницы: мета-теги, шапка, подвал |
 | `src/pages/` | index.astro, archive.astro, [slug].astro |
 | `src/styles/global.css` | `@theme` с палитрой и `@utility` с повторяемыми стилями |
@@ -114,8 +114,12 @@ adapters → normalize → filter → categorize → summarize → data/material
 - Формат — 16:9, не менее 1600×900, без битых ссылок.
 - Источники — royalty-free (Unsplash, Pexels) либо собственные аккуратные иллюстрации. Лицензия
   указывается в этом файле при добавлении новой обложки.
+- Текущие обложки (7 файлов) — собственная векторная графика проекта: текстура дерева и мотив
+  рубрики, растеризованные в WebP. Лицензия на изображения не требуется.
 - Генерация обложек по `IMAGE_GEN_API_KEY` — точка расширения в `src/lib/covers.ts`, реализуется
   владельцем проекта.
+- Выбор обложки: `getCategoryCover(рубрика)` — путь с base path, `getCategoryCoverPath(рубрика)` —
+  путь без base path (для `og:image`), `getCoverForMaterial(материал)` — обложка материала.
 
 ## 9. Процесс правки
 

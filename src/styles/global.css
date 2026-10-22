@@ -117,7 +117,7 @@
 
 /* Чип-фильтр в состоянии покоя. */
 @utility chip {
-  @apply inline-flex shrink-0 items-center gap-1.5 rounded-chip border border-sand-200 bg-white px-3 py-1.5 text-sm font-medium text-graphite-600 transition-colors duration-150;
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-chip border border-sand-200 bg-white px-3 py-1.5 text-sm font-medium text-graphite-600 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta-500;
 }
 
 @utility chip-muted {
@@ -148,7 +148,7 @@
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-chip px-4 py-2.5 text-sm font-semibold transition-colors duration-200;
+  @apply inline-flex items-center justify-center gap-2 rounded-chip px-4 py-2.5 text-sm font-semibold transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-terracotta-500;
 }
 
 @utility btn-primary {

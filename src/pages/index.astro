@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import MaterialCard from '../components/MaterialCard.astro';
+import StatsBand from '../components/StatsBand.astro';
+import CategoryGrid from '../components/CategoryGrid.astro';
 import { getAllMaterials, getFreshIssue } from '../lib/data';
-import { getSiteName, getTagline } from '../lib/site';
+import { getSiteName, site } from '../lib/site';
 import { plural, withBase } from '../lib/utils';
+import sourcesConfig from '../config/sources.json';
 
 const all = getAllMaterials();
 const fresh = getFreshIssue(7, 7);
@@ -17,31 +20,90 @@ for (const material of all) {
   if (issue.length >= 7) break;
   if (!issue.some(item => item.id === material.id)) issue.push(material);
 }
+
+/** Сколько материалов в каждой рубрике. */
+const counts = all.reduce<Record<string, number>>((acc, material) => {
+  acc[material.category] = (acc[material.category] ?? 0) + 1;
+  return acc;
+}, {});
+
+/** Сколько источников включено в конвейер. */
+const enabledSources = [
+  ...sourcesConfig.telegram,
+  ...sourcesConfig.rss,
+  ...sourcesConfig.youtube
+].filter(source => source.enabled).length;
+
+/** Дата последнего обновления — по самому свежему материалу. */
+const updatedAt = all.length
+  ? new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short' }).format(
+      new Date(all[0].publishedAt)
+    )
+  : '—';
 ---
 
 <BaseLayout>
-  <section class="border-b border-sand-200 bg-gradient-to-b from-paper-100 via-paper to-paper">
-    <div class="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+  <section
+    class="relative overflow-hidden border-b border-sand-200 bg-gradient-to-b from-paper-100 via-paper to-paper"
+  >
+    <div
+      class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-terracotta-200/50 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute -bottom-32 -left-24 h-72 w-72 rounded-full bg-amber-200/60 blur-3xl"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
       <p class="badge bg-white text-terracotta-600 shadow-card">
         <span class="h-1.5 w-1.5 rounded-full bg-terracotta-500" aria-hidden="true"></span>
         Дайджест столярного ремесла
       </p>
 
-      <h1 class="mt-5 font-serif text-5xl font-black leading-[1.02] tracking-tight text-graphite-900 sm:text-6xl">
+      <h1
+        class="mt-5 max-w-3xl font-serif text-5xl font-black leading-[1.02] tracking-tight text-graphite-900 sm:text-6xl"
+      >
         {getSiteName()}
       </h1>
 
-      <p class="mt-4 max-w-xl text-base leading-relaxed text-graphite-600 sm:text-lg">
-        {getTagline()}
+      <p class="mt-5 max-w-2xl text-base leading-relaxed text-graphite-600 sm:text-lg">
+        {site.description}
       </p>
 
       <div class="mt-8 flex flex-wrap gap-3">
         <a href={withBase('/archive/')} class="btn-primary">Смотреть архив</a>
+        <a href="#issue" class="btn-ghost">Свежий выпуск</a>
       </div>
     </div>
   </section>
 
+  <section class="mx-auto max-w-6xl px-4">
+    <div class="-mt-10">
+      <StatsBand
+        materials={all.length}
+        categories={Object.keys(counts).length}
+        sources={enabledSources}
+        updatedAt={updatedAt}
+      />
+    </div>
+  </section>
+
   <section class="mx-auto max-w-6xl px-4 py-16">
+    <header class="mb-8">
+      <p class="badge bg-white text-graphite-600 shadow-card">Рубрики</p>
+      <h2 class="mt-4 font-serif text-3xl font-bold text-graphite-900">Выберите рубрику</h2>
+      <p class="mt-3 max-w-2xl leading-relaxed text-graphite-600">
+        Шесть рубрик дайджеста. Нажмите на рубрику — архив откроется уже отфильтрованным.
+      </p>
+    </header>
+
+    <CategoryGrid counts={counts} />
+  </section>
+
+  <section id="issue" class="mx-auto max-w-6xl scroll-mt-24 px-4 pb-20">
     <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="badge bg-white text-graphite-600 shadow-card">Свежий выпуск</p>
@@ -71,8 +133,8 @@ for (const material of all) {
             свежих обзоров до разборов техники.
           </p>
           <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {issue.map(material => (
-              <MaterialCard material={material} />
+            {issue.map((material, index) => (
+              <MaterialCard material={material} eager={index === 0} />
             ))}
           </div>
         </>
