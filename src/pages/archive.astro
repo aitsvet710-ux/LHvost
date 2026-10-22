@@ -1,23 +1,77 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MaterialCard from '../components/MaterialCard.astro';
+import Filters from '../components/Filters.astro';
+import { getAllMaterials, getCategories, getContentTypes, getSources } from '../lib/data';
+import { plural } from '../lib/utils';
+
+const materials = getAllMaterials();
+const categories = getCategories();
+const sources = getSources();
+const contentTypes = getContentTypes();
+
+/** Лента по месяцам: заголовок формируется через Intl с локалью ru-RU. */
+const monthFormatter = new Intl.DateTimeFormat('ru-RU', {
+  year: 'numeric',
+  month: 'long'
+});
+
+const grouped = materials.reduce<Record<string, typeof materials>>((acc, material) => {
+  const key = monthFormatter.format(new Date(material.publishedAt));
+  (acc[key] ??= []).push(material);
+  return acc;
+}, {});
 ---
 
 <BaseLayout title="Архив">
-  <div class="mx-auto max-w-6xl px-4 py-16">
+  <div class="mx-auto max-w-6xl px-4 py-12">
     <header class="mb-8">
       <p class="badge bg-white text-graphite-600 shadow-card">Архив</p>
       <h1 class="mt-4 font-serif text-3xl font-bold text-graphite-900 sm:text-4xl">
         Все материалы дайджеста
       </h1>
       <p class="mt-3 max-w-2xl leading-relaxed text-graphite-600">
-        Здесь появятся собранные материалы с фильтрами по рубрике, источнику и типу контента,
-        а также поиском по названию и краткому содержанию.
+        Собрано {materials.length} {plural(materials.length, 'материал', 'материала', 'материалов')}.
+        Фильтруйте по рубрике, источнику и типу контента или ищите по названию и краткому содержанию.
       </p>
     </header>
 
-    <div class="card p-10 text-center text-graphite-600">
-      Архив пока пуст. Выполните <code class="rounded-chip bg-sand-100 px-1.5 py-0.5">npm run collect</code>,
-      чтобы наполнить его материалами.
-    </div>
+    {materials.length === 0 ? (
+      <div class="card p-10 text-center text-graphite-600">
+        Архив пока пуст. Выполните <code class="rounded-chip bg-sand-100 px-1.5 py-0.5">npm run collect</code>,
+        чтобы наполнить его материалами.
+      </div>
+    ) : (
+      <>
+        <div class="mb-10">
+          <Filters categories={categories} sources={sources} contentTypes={contentTypes} />
+        </div>
+
+        <p data-empty class="card hidden p-10 text-center text-graphite-600">
+          По вашему запросу ничего не нашлось. Попробуйте изменить фильтры или поисковый запрос.
+        </p>
+
+        <div class="space-y-14">
+          {
+            Object.entries(grouped).map(([period, items]) => (
+              <section data-month>
+                <div class="mb-5 flex items-center gap-4">
+                  <h2 class="font-serif text-xl font-bold text-graphite-900">{period}</h2>
+                  <span class="h-px flex-1 bg-sand-200" aria-hidden="true"></span>
+                  <span class="text-xs text-graphite-500">
+                    {items.length} {plural(items.length, 'материал', 'материала', 'материалов')}
+                  </span>
+                </div>
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map(material => (
+                    <MaterialCard material={material} />
+                  ))}
+                </div>
+              </section>
+            ))
+          }
+        </div>
+      </>
+    )}
   </div>
 </BaseLayout>

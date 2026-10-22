@@ -1,7 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MaterialCard from '../components/MaterialCard.astro';
+import { getAllMaterials, getFreshIssue } from '../lib/data';
 import { getSiteName, getTagline } from '../lib/site';
-import { withBase } from '../lib/utils';
+import { plural, withBase } from '../lib/utils';
+
+const all = getAllMaterials();
+const fresh = getFreshIssue(7, 7);
+
+/**
+ * Свежий выпуск: материалы за последние 7 дней.
+ * Если их меньше пяти — добираем самыми свежими из остальных, чтобы выпуск не был пустым.
+ */
+const issue = [...fresh];
+for (const material of all) {
+  if (issue.length >= 7) break;
+  if (!issue.some(item => item.id === material.id)) issue.push(material);
+}
 ---
 
 <BaseLayout>
@@ -27,13 +42,41 @@ import { withBase } from '../lib/utils';
   </section>
 
   <section class="mx-auto max-w-6xl px-4 py-16">
-    <div class="card p-10 text-center text-graphite-600">
-      <h2 class="font-serif text-2xl font-bold text-graphite-900">Сбор материалов — в работе</h2>
-      <p class="mx-auto mt-3 max-w-xl leading-relaxed">
-        Конвейер сбора ещё не подключён: на этой странице появится свежий выпуск из 5–7
-        материалов. Источники — Telegram, RSS и YouTube, рубрики — инструмент, проект и чертёж,
-        техника и приёмы, безопасность, события и вдохновение.
-      </p>
-    </div>
+    <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="badge bg-white text-graphite-600 shadow-card">Свежий выпуск</p>
+        <h2 class="mt-4 font-serif text-3xl font-bold text-graphite-900 sm:text-4xl">
+          Что нового за неделю
+        </h2>
+      </div>
+      <a href={withBase('/archive/')} class="btn-ghost">
+        Весь архив
+        <span aria-hidden="true">→</span>
+      </a>
+    </header>
+
+    {
+      issue.length === 0 ? (
+        <div class="card p-10 text-center text-graphite-600">
+          <h3 class="font-serif text-2xl font-bold text-graphite-900">Материалов пока нет</h3>
+          <p class="mx-auto mt-3 max-w-xl leading-relaxed">
+            Выполните <code class="rounded-chip bg-sand-100 px-1.5 py-0.5">npm run collect</code>,
+            чтобы собрать материалы из Telegram, RSS и YouTube.
+          </p>
+        </div>
+      ) : (
+        <>
+          <p class="mb-6 text-sm text-graphite-600">
+            В выпуске {issue.length} {plural(issue.length, 'материал', 'материала', 'материалов')} — от
+            свежих обзоров до разборов техники.
+          </p>
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {issue.map(material => (
+              <MaterialCard material={material} />
+            ))}
+          </div>
+        </>
+      )
+    }
   </section>
 </BaseLayout>
