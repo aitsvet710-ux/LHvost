@@ -1,0 +1,82 @@
+---
+import type { Material } from '../lib/types';
+import { detectLanguage } from '../lib/language';
+
+interface Props {
+  material: Material;
+  /** Показать только текстовую пометку «Переведено автоматически». */
+  textOnly?: boolean;
+}
+
+const { material, textOnly = false } = Astro.props;
+
+const isTranslated = material.translated === true;
+
+/**
+ * Язык материала проверяем по заголовку и резюме раздельно.
+ * Если иноязычным остался хоть один из них — покажем бейдж «Оригинал».
+ */
+const isForeign =
+  detectLanguage(material.title) === 'other' || detectLanguage(material.summary ?? '') === 'other';
+---
+
+{
+  isTranslated ? (
+    <span
+      class:list={[
+        'inline-flex items-center gap-1 font-medium text-teal-700',
+        textOnly ? 'text-xs' : 'text-[11px]'
+      ]}
+      title="Текст переведён автоматически"
+      aria-label="Текст переведён автоматически"
+    >
+      {!textOnly && (
+        <svg
+          class="h-3.5 w-3.5 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m5 8 6 6" />
+          <path d="m4 14 6-6 2-3" />
+          <path d="M2 5h12" />
+          <path d="M7 2h1" />
+          <path d="m22 22-5-10-5 10" />
+          <path d="M14 18h6" />
+        </svg>
+      )}
+      Переведено
+    </span>
+  ) : isForeign ? (
+    <span
+      class:list={[
+        'inline-flex items-center gap-1 font-medium text-graphite-500',
+        textOnly ? 'text-xs' : 'text-[11px]'
+      ]}
+      title="Оригинальный текст на языке источника"
+      aria-label="Оригинальный текст на языке источника"
+    >
+      {!textOnly && (
+        <svg
+          class="h-3.5 w-3.5 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+      )}
+      Оригинал
+    </span>
+  ) : null
+}

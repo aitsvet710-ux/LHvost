@@ -27,6 +27,7 @@ TypeScript, деплой на GitHub Pages.
 | `scripts/normalize.ts` | Приведение сырого материала к общей схеме, чистка HTML, дата |
 | `scripts/filter.ts` | Отсев рекламы и материалов без практической ценности |
 | `scripts/categorize.ts` | Рубрика по ключевым словам, извлечение тегов |
+| `scripts/backfill-translations.ts` | Докач переводов уже собранных материалов |
 | `scripts/adapters/` | Источники: telegram.ts, rss.ts, youtube.ts |
 | `scripts/ai/` | summarize.ts, translate.ts |
 | `data/materials.json` | Собранные материалы (коммитится) |
@@ -79,7 +80,7 @@ npm audit              # должно быть 0 уязвимостей
 `npm run collect` выполняет шаги строго по порядку:
 
 ```text
-adapters → normalize → filter → categorize → summarize → data/materials.json
+adapters → normalize → filter → categorize → summarize → translate → data/materials.json
 ```
 
 - Каждый адаптер изолирует сбой: недоступный источник даёт предупреждение и пустой массив.

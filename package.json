@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "collect": "tsx scripts/collect.ts",
+    "backfill:translations": "tsx scripts/backfill-translations.ts",
     "typecheck": "tsc --noEmit",
     "astro": "astro"
   },
