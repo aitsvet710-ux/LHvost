@@ -1,0 +1,39 @@
+---
+import type { Category, ContentType } from '../lib/types';
+import { CATEGORY_META } from '../lib/categories';
+
+interface Props {
+  category: Category | string;
+  contentType?: ContentType | string;
+  size?: 'sm' | 'md';
+}
+
+const { category, contentType, size = 'md' } = Astro.props;
+
+const meta = CATEGORY_META[category as Category];
+const badge = meta?.badge ?? 'bg-graphite-800 text-sand-100';
+const typeBadge = 'bg-sand-100 text-graphite-600';
+---
+
+<div class="flex flex-wrap items-center gap-2">
+  <span
+    class:list={[
+      'inline-flex items-center rounded-full font-semibold',
+      size === 'sm' ? 'px-2.5 py-1 text-xs' : 'px-3 py-1.5 text-sm',
+      badge
+    ]}
+  >
+    {category}
+  </span>
+  {contentType && (
+    <span
+      class:list={[
+        'inline-flex items-center rounded-full font-medium',
+        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
+        typeBadge
+      ]}
+    >
+      {contentType}
+    </span>
+  )}
+</div>

@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Tag from '../components/Tag.astro';
+import { getAllMaterials } from '../lib/data';
+import { formatDate, readingTimeRu, relativeDateRu, withBase } from '../lib/utils';
+import type { Material } from '../lib/types';
+
+export function getStaticPaths() {
+  return getAllMaterials().map(material => ({
+    params: { slug: material.slug },
+    props: { material }
+  }));
+}
+
+const { material } = Astro.props as { material: Material };
+
+const readLabel = readingTimeRu(`${material.summary ?? ''} ${material.description ?? ''}`);
+
+/** Ещё три материала из той же рубрики. */
+const related = getAllMaterials()
+  .filter(item => item.id !== material.id && item.category === material.category)
+  .slice(0, 3);
+---
+
+<BaseLayout title={material.title} description={material.summary || material.title}>
+  <div class="border-b border-sand-200 bg-gradient-to-b from-paper-100 to-paper">
+    <div class="mx-auto max-w-3xl px-4 py-12">
+      <a href={withBase('/archive/')} class="btn-ghost text-sm">
+        <span aria-hidden="true">←</span> Назад в архив
+      </a>
+
+      <div class="mt-6">
+        <Tag category={material.category} contentType={material.contentType} />
+      </div>
+
+      <h1 class="mt-4 font-serif text-3xl font-bold leading-tight text-graphite-900 sm:text-4xl">
+        {material.title}
+      </h1>
+
+      <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-graphite-600">
+        <span>
+          Источник: <strong class="font-semibold text-graphite-800">{material.source}</strong>
+        </span>
+        <time datetime={material.publishedAt} title={formatDate(material.publishedAt)}>
+          {relativeDateRu(material.publishedAt)}
+        </time>
+        <span
+          class="inline-flex items-center rounded-chip bg-sand-100 px-2 py-1 text-xs font-medium text-graphite-600"
+        >
+          {readLabel}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <article class="mx-auto max-w-3xl px-4 py-12">
+    {material.summary && (
+      <section class="rounded-card border-l-4 border-terracotta-500 bg-paper-100 p-6">
+        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-graphite-500">Коротко</h2>
+        <p class="text-base leading-relaxed text-graphite-800">{material.summary}</p>
+      </section>
+    )}
+
+    {material.description && material.description !== material.summary && (
+      <section class="mt-8">
+        <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Подробнее</h2>
+        <p class="leading-relaxed text-graphite-600">{material.description}</p>
+      </section>
+    )}
+
+    {material.tags && material.tags.length > 0 && (
+      <section class="mt-8">
+        <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Теги</h2>
+        <div class="flex flex-wrap gap-2">
+          {material.tags.map(tag => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <div class="mt-10 border-t border-sand-200 pt-8">
+      <a href={material.url} target="_blank" rel="noopener noreferrer" class="btn-primary">
+        Открыть первоисточник
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    {
+      related.length > 0 && (
+        <aside class="mt-14 border-t border-sand-200 pt-8">
+          <h2 class="mb-4 font-serif text-xl font-bold text-graphite-900">
+            Ещё в рубрике «{material.category}»
+          </h2>
+          <ul class="grid gap-3 sm:grid-cols-3">
+            {related.map(item => (
+              <li>
+                <a href={withBase(`/${item.slug}/`)} class="card card-lift h-full gap-2 p-4">
+                  <span class="line-clamp-2 text-sm font-semibold leading-snug text-graphite-900">
+                    {item.title}
+                  </span>
+                  <span class="mt-auto text-xs text-graphite-500">
+                    {relativeDateRu(item.publishedAt)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )
+    }
+  </article>
+</BaseLayout>

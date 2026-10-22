@@ -19,6 +19,9 @@ TypeScript, деплой на GitHub Pages.
 | `src/lib/data.ts` | Доступ к материалам: список, свежий выпуск, поиск по слагу |
 | `src/lib/categories.ts` | Справочник рубрик: слаг, цвета, иконки |
 | `src/lib/covers.ts` | Обложки: путь по рубрике, точка расширения для генерации |
+| `src/components/` | Header, Footer, MaterialCard, Tag, Filters |
+| `src/layouts/BaseLayout.astro` | Каркас страницы: мета-теги, шапка, подвал |
+| `src/pages/` | index.astro, archive.astro, [slug].astro |
 | `src/styles/global.css` | `@theme` с палитрой и `@utility` с повторяемыми стилями |
 | `scripts/collect.ts` | Точка входа конвейера |
 | `scripts/normalize.ts` | Приведение сырого материала к общей схеме, чистка HTML, дата |
@@ -27,6 +30,18 @@ TypeScript, деплой на GitHub Pages.
 | `scripts/adapters/` | Источники: telegram.ts, rss.ts, youtube.ts |
 | `scripts/ai/` | summarize.ts, translate.ts |
 | `data/materials.json` | Собранные материалы (коммитится) |
+
+### Маршруты
+
+| Адрес | Что показывает |
+| --- | --- |
+| `/` | Hero и свежий выпуск — до 7 последних материалов |
+| `/archive/` | Все материалы по месяцам, фильтры и поиск |
+| `/<slug>/` | Страница материала: рубрика, теги, первоисточник, похожие |
+
+- Карточка ведёт на внутреннюю страницу материала, первоисточник — ссылкой с самой страницы.
+- Фильтры архива живут в query-параметрах: `?category=<слаг>&source=<название>&type=<тип>`.
+- Фильтрация клиентская: карточки помечены `data-category`, `data-source`, `data-content-type`.
 
 ## 3. Инварианты — не нарушать никогда
 
