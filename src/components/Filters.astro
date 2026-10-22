@@ -58,29 +58,37 @@ const groups = [
         <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-graphite-600">
           {group.label}
         </p>
-        <div class="chips-scroll">
-          <button
-            type="button"
-            class="chip-active"
-            aria-pressed="true"
-            data-filter={group.key}
-            data-value=""
-            data-slug=""
-          >
-            Все
-          </button>
-          {group.options.map(option => (
+        <div class="relative" data-chips-wrap>
+          <div class="chips-scroll">
             <button
               type="button"
-              class="chip-muted"
-              aria-pressed="false"
+              class="chip-active"
+              aria-pressed="true"
               data-filter={group.key}
-              data-value={option.value}
-              data-slug={option.slug}
+              data-value=""
+              data-slug=""
             >
-              {option.label}
+              Все
             </button>
-          ))}
+            {group.options.map(option => (
+              <button
+                type="button"
+                class="chip-muted"
+                aria-pressed="false"
+                data-filter={group.key}
+                data-value={option.value}
+                data-slug={option.slug}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <span
+            class="pointer-events-none absolute inset-y-0 right-0 hidden w-8 bg-gradient-to-l from-white to-transparent sm:hidden"
+            data-chips-fade
+            aria-hidden="true"
+          >
+          </span>
         </div>
       </div>
     ))
@@ -179,6 +187,24 @@ const groups = [
   }
 
   search?.addEventListener('input', applyFilters);
+
+  // Затухание края ленты чипов: показываем, пока есть что прокрутить вправо.
+  const scrollers = Array.from(document.querySelectorAll<HTMLElement>('.chips-scroll'));
+
+  function syncFades() {
+    for (const scroller of scrollers) {
+      const fade = scroller.parentElement?.querySelector<HTMLElement>('[data-chips-fade]');
+      if (!fade) continue;
+      const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2;
+      fade.classList.toggle('hidden', atEnd);
+    }
+  }
+
+  for (const scroller of scrollers) {
+    scroller.addEventListener('scroll', syncFades, { passive: true });
+  }
+  window.addEventListener('resize', syncFades, { passive: true });
+  syncFades();
 
   // Фильтр из адресной строки: /archive/?category=<слаг>&source=<название>&type=<тип>
   const params = new URLSearchParams(window.location.search);

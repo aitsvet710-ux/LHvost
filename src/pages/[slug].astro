@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Tag from '../components/Tag.astro';
 import { getAllMaterials } from '../lib/data';
+import { getCategoryCover, getCategoryCoverPath } from '../lib/covers';
 import { formatDate, readingTimeRu, relativeDateRu, withBase } from '../lib/utils';
 import type { Material } from '../lib/types';
 
@@ -14,6 +15,7 @@ export function getStaticPaths() {
 
 const { material } = Astro.props as { material: Material };
 
+const cover = getCategoryCover(material.category);
 const readLabel = readingTimeRu(`${material.summary ?? ''} ${material.description ?? ''}`);
 
 /** Ещё три материала из той же рубрики. */
@@ -22,92 +24,136 @@ const related = getAllMaterials()
   .slice(0, 3);
 ---
 
-<BaseLayout title={material.title} description={material.summary || material.title}>
-  <div class="border-b border-sand-200 bg-gradient-to-b from-paper-100 to-paper">
-    <div class="mx-auto max-w-3xl px-4 py-12">
+<BaseLayout
+  title={material.title}
+  description={material.summary || material.title}
+  image={getCategoryCoverPath(material.category)}
+>
+  {/* Полоса прогресса чтения — заполняется при прокрутке */}
+  <div
+    id="reading-progress"
+    class="fixed inset-x-0 top-0 z-50 h-1 origin-left scale-x-0 bg-gradient-to-r from-terracotta-500 via-amber-500 to-teal-500"
+    role="progressbar"
+    aria-label="Прогресс чтения"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="0"
+  >
+  </div>
+
+  <div class="relative">
+    <div class="absolute inset-x-0 top-0 h-64 overflow-hidden sm:h-80">
+      <img
+        src={cover}
+        alt={`Иллюстрация рубрики «${material.category}»`}
+        width="1600"
+        height="900"
+        loading="eager"
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-paper/40 via-paper/85 to-paper"></div>
+    </div>
+
+    <article class="relative mx-auto max-w-3xl px-4 pb-14 pt-40 sm:pt-48">
       <a href={withBase('/archive/')} class="btn-ghost text-sm">
         <span aria-hidden="true">←</span> Назад в архив
       </a>
 
-      <div class="mt-6">
+      <header class="mt-6">
         <Tag category={material.category} contentType={material.contentType} />
+
+        <h1 class="mt-4 font-serif text-3xl font-bold leading-tight text-graphite-900 sm:text-4xl">
+          {material.title}
+        </h1>
+
+        <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-graphite-600">
+          <span>
+            Источник: <strong class="font-semibold text-graphite-800">{material.source}</strong>
+          </span>
+          <time datetime={material.publishedAt} title={formatDate(material.publishedAt)}>
+            {relativeDateRu(material.publishedAt)}
+          </time>
+          <span
+            class="inline-flex items-center rounded-chip bg-sand-100 px-2 py-1 text-xs font-medium text-graphite-600"
+          >
+            {readLabel}
+          </span>
+        </div>
+      </header>
+
+      {material.summary && (
+        <section class="mt-8 rounded-card border-l-4 border-terracotta-500 bg-paper-100 p-6">
+          <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-graphite-500">Коротко</h2>
+          <p class="text-base leading-relaxed text-graphite-800">{material.summary}</p>
+        </section>
+      )}
+
+      {material.description && material.description !== material.summary && (
+        <section class="mt-8">
+          <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Подробнее</h2>
+          <p class="leading-relaxed text-graphite-600">{material.description}</p>
+        </section>
+      )}
+
+      {material.tags && material.tags.length > 0 && (
+        <section class="mt-8">
+          <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Теги</h2>
+          <div class="flex flex-wrap gap-2">
+            {material.tags.map(tag => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div class="mt-10 border-t border-sand-200 pt-8">
+        <a href={material.url} target="_blank" rel="noopener noreferrer" class="btn-primary">
+          Открыть первоисточник
+          <span aria-hidden="true">→</span>
+        </a>
       </div>
 
-      <h1 class="mt-4 font-serif text-3xl font-bold leading-tight text-graphite-900 sm:text-4xl">
-        {material.title}
-      </h1>
-
-      <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-graphite-600">
-        <span>
-          Источник: <strong class="font-semibold text-graphite-800">{material.source}</strong>
-        </span>
-        <time datetime={material.publishedAt} title={formatDate(material.publishedAt)}>
-          {relativeDateRu(material.publishedAt)}
-        </time>
-        <span
-          class="inline-flex items-center rounded-chip bg-sand-100 px-2 py-1 text-xs font-medium text-graphite-600"
-        >
-          {readLabel}
-        </span>
-      </div>
-    </div>
+      {
+        related.length > 0 && (
+          <aside class="mt-14 border-t border-sand-200 pt-8">
+            <h2 class="mb-4 font-serif text-xl font-bold text-graphite-900">
+              Ещё в рубрике «{material.category}»
+            </h2>
+            <ul class="grid gap-3 sm:grid-cols-3">
+              {related.map(item => (
+                <li>
+                  <a href={withBase(`/${item.slug}/`)} class="card card-lift h-full gap-2 p-4">
+                    <span class="line-clamp-2 text-sm font-semibold leading-snug text-graphite-900">
+                      {item.title}
+                    </span>
+                    <span class="mt-auto text-xs text-graphite-500">
+                      {relativeDateRu(item.publishedAt)}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )
+      }
+    </article>
   </div>
 
-  <article class="mx-auto max-w-3xl px-4 py-12">
-    {material.summary && (
-      <section class="rounded-card border-l-4 border-terracotta-500 bg-paper-100 p-6">
-        <h2 class="mb-2 text-xs font-semibold uppercase tracking-wide text-graphite-500">Коротко</h2>
-        <p class="text-base leading-relaxed text-graphite-800">{material.summary}</p>
-      </section>
-    )}
+  <script>
+    const bar = document.getElementById('reading-progress');
+    if (bar) {
+      const update = () => {
+        const doc = document.documentElement;
+        const scrollable = doc.scrollHeight - window.innerHeight;
+        const ratio = scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0;
+        bar.style.transform = `scaleX(${ratio})`;
+        bar.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+      };
 
-    {material.description && material.description !== material.summary && (
-      <section class="mt-8">
-        <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Подробнее</h2>
-        <p class="leading-relaxed text-graphite-600">{material.description}</p>
-      </section>
-    )}
-
-    {material.tags && material.tags.length > 0 && (
-      <section class="mt-8">
-        <h2 class="mb-3 font-serif text-xl font-bold text-graphite-900">Теги</h2>
-        <div class="flex flex-wrap gap-2">
-          {material.tags.map(tag => (
-            <span class="tag">{tag}</span>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <div class="mt-10 border-t border-sand-200 pt-8">
-      <a href={material.url} target="_blank" rel="noopener noreferrer" class="btn-primary">
-        Открыть первоисточник
-        <span aria-hidden="true">→</span>
-      </a>
-    </div>
-
-    {
-      related.length > 0 && (
-        <aside class="mt-14 border-t border-sand-200 pt-8">
-          <h2 class="mb-4 font-serif text-xl font-bold text-graphite-900">
-            Ещё в рубрике «{material.category}»
-          </h2>
-          <ul class="grid gap-3 sm:grid-cols-3">
-            {related.map(item => (
-              <li>
-                <a href={withBase(`/${item.slug}/`)} class="card card-lift h-full gap-2 p-4">
-                  <span class="line-clamp-2 text-sm font-semibold leading-snug text-graphite-900">
-                    {item.title}
-                  </span>
-                  <span class="mt-auto text-xs text-graphite-500">
-                    {relativeDateRu(item.publishedAt)}
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </aside>
-      )
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+      update();
     }
-  </article>
+  </script>
 </BaseLayout>
