@@ -1,0 +1,160 @@
+@import 'tailwindcss';
+
+/*
+ * Палитра дайджеста: «тёплое дерево + современный акцент».
+ * Все цвета живут только здесь — в компонентах используются классы вида
+ * `bg-terracotta-600`, без inline-значений.
+ */
+@theme {
+  /* Поверхности */
+  --color-paper: #faf6ee;
+  --color-paper-100: #f4ecdd;
+  --color-paper-200: #ece0cc;
+
+  /* Графит: основной текст и тёмные акценты */
+  --color-graphite-900: #1b1613;
+  --color-graphite-800: #2b2320;
+  --color-graphite-700: #3d332c;
+  --color-graphite-600: #55483f;
+  --color-graphite-500: #6b5d52;
+  --color-graphite-400: #8b7c6e;
+  --color-graphite-300: #b3a494;
+
+  /* Песочный: карточки, границы, вторичные заливки */
+  --color-sand-50: #fdfbf7;
+  --color-sand-100: #efe6d6;
+  --color-sand-200: #e3d5bd;
+  --color-sand-300: #d2bf9f;
+
+  /* Терракота */
+  --color-terracotta-100: #f8e1d7;
+  --color-terracotta-200: #f0c2b1;
+  --color-terracotta-400: #d97a5e;
+  --color-terracotta-500: #c75b3f;
+  --color-terracotta-600: #a9482f;
+  --color-terracotta-700: #863722;
+
+  /* Янтарь */
+  --color-amber-100: #fbeed0;
+  --color-amber-200: #f6db9f;
+  --color-amber-400: #f0bd5c;
+  --color-amber-500: #e6a537;
+  --color-amber-600: #c4841f;
+  --color-amber-700: #9c6716;
+
+  /* Тил */
+  --color-teal-100: #d7ece7;
+  --color-teal-200: #b2dbd2;
+  --color-teal-400: #46a99a;
+  --color-teal-500: #2b8a7a;
+  --color-teal-600: #1f6b5e;
+  --color-teal-700: #17534a;
+
+  /* Слива */
+  --color-plum-100: #f0dde4;
+  --color-plum-200: #ddb9c7;
+  --color-plum-400: #ab6c86;
+  --color-plum-500: #8a4f63;
+  --color-plum-600: #6e3f52;
+  --color-plum-700: #543042;
+
+  /* Охра */
+  --color-ochre-100: #f4e7d0;
+  --color-ochre-200: #e5cf9f;
+  --color-ochre-400: #b98d51;
+  --color-ochre-500: #8a6534;
+  --color-ochre-600: #6f4f28;
+  --color-ochre-700: #573c1e;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Merriweather', Georgia, 'Times New Roman', serif;
+
+  /* Форма: 16 px на карточках, 8 px на чипах */
+  --radius-chip: 8px;
+  --radius-card: 16px;
+
+  /* Мягкие тени без резких границ */
+  --shadow-card: 0 1px 2px rgb(27 22 19 / 0.05), 0 10px 24px -14px rgb(27 22 19 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(27 22 19 / 0.06), 0 22px 40px -20px rgb(27 22 19 / 0.3);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-graphite-900 font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  ::selection {
+    background-color: var(--color-terracotta-200);
+  }
+}
+
+/* Карточка — базовый блок материалов и плиток. */
+@utility card {
+  @apply flex flex-col overflow-hidden rounded-card border border-sand-200 bg-white shadow-card transition-all duration-200;
+}
+
+/* Подъём карточки при наведении. */
+@utility card-lift {
+  @apply hover:-translate-y-0.5 hover:shadow-lift focus-within:-translate-y-0.5 focus-within:shadow-lift focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-terracotta-500;
+}
+
+/* Чип-фильтр в состоянии покоя. */
+@utility chip {
+  @apply inline-flex shrink-0 items-center gap-1.5 rounded-chip border border-sand-200 bg-white px-3 py-1.5 text-sm font-medium text-graphite-600 transition-colors duration-150;
+}
+
+@utility chip-muted {
+  @apply chip hover:border-graphite-400 hover:text-graphite-900;
+}
+
+/* Чип-фильтр в активном состоянии. */
+@utility chip-active {
+  @apply chip border-transparent bg-graphite-900 text-paper hover:bg-graphite-800;
+}
+
+/* Горизонтальная прокрутка чипов на мобильном. */
+@utility chips-scroll {
+  @apply flex gap-2 overflow-x-auto pb-1.5;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility badge {
+  @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+}
+
+@utility tag {
+  @apply inline-flex items-center rounded-full bg-sand-100 px-2.5 py-1 text-xs font-medium text-graphite-700;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-chip px-4 py-2.5 text-sm font-semibold transition-colors duration-200;
+}
+
+@utility btn-primary {
+  @apply btn bg-graphite-900 text-paper hover:bg-graphite-700;
+}
+
+@utility btn-ghost {
+  @apply btn border border-sand-300 bg-white text-graphite-700 hover:border-graphite-400 hover:text-graphite-900;
+}

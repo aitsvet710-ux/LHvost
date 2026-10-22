@@ -1,0 +1,63 @@
+---
+import { getSiteName, getTagline, site } from '../lib/site';
+import { withBase } from '../lib/utils';
+
+const links = [
+  { href: '/', label: 'Главная' },
+  { href: '/archive/', label: 'Архив' }
+];
+
+const basePath = withBase('/').replace(/\/$/, '');
+const current = Astro.url.pathname.replace(basePath, '') || '/';
+---
+
+<header class="sticky top-0 z-40 border-b border-sand-200/80 bg-paper/85 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-4">
+    <a href={withBase('/')} class="group flex min-w-0 items-center">
+      <span class="flex min-w-0 flex-col leading-tight">
+        <span
+          class="whitespace-nowrap font-serif text-base font-bold tracking-tight text-graphite-900 transition-colors duration-150 group-hover:text-terracotta-600 sm:text-lg"
+        >
+          {getSiteName()}
+        </span>
+        <span
+          class="hidden line-clamp-1 text-[11px] uppercase tracking-[0.18em] text-graphite-500 sm:block"
+        >
+          {getTagline()}
+        </span>
+      </span>
+    </a>
+
+    <nav class="flex items-center gap-0.5 sm:gap-2" aria-label="Основная навигация">
+      {
+        links.map(link => {
+          const active =
+            current === link.href || (link.href !== '/' && current.startsWith(link.href));
+          return (
+            <a
+              href={withBase(link.href)}
+              aria-current={active ? 'page' : undefined}
+              class:list={[
+                'rounded-chip px-2 py-2 text-sm font-medium transition-colors sm:px-3',
+                active
+                  ? 'bg-graphite-900 text-paper'
+                  : 'text-graphite-600 hover:bg-sand-100 hover:text-graphite-900'
+              ]}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+      <a
+        href={site.vkUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn ml-1 bg-graphite-900 text-paper hover:bg-graphite-700"
+      >
+        <span class="sm:hidden">ВК</span>
+        <span class="hidden sm:inline">Читать в ВК</span>
+      </a>
+    </nav>
+  </div>
+</header>

@@ -1,70 +1,10 @@
-# Dependencies
-node_modules/
-vendor/
-.pnp
-.pnp.js
-
-# Build output
-dist/
-build/
-out/
-.output/
-.astro/
-.vercel/
-.netlify/
-.next/
-.nuxt/
-.svelte-kit/
-
-# Environment
-.env
-.env.local
-.env.*.local
-!.env.example
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Caches
-.cache/
-.temp/
-.tmp/
-*.tsbuildinfo
-.eslintcache
-.stylelintcache
-
-# Test coverage
-coverage/
-.nyc_output/
-
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-.mypy_cache/
-.pytest_cache/
-.ruff_cache/
-
-# Databases
-*.sqlite
-*.sqlite3
-*.db
-
-# OS
+# ---------- OS ----------
 .DS_Store
 Thumbs.db
-ehthumbs.db
 Desktop.ini
+ehthumbs.db
 
-# IDE / editors
+# ---------- IDE / Editors ----------
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
@@ -72,3 +12,72 @@ Desktop.ini
 *.swp
 *.swo
 *~
+
+# ---------- Env ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------- Node ----------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn/cache
+.yarn/install-state.gz
+.pnpm-store/
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.turbo/
+.cache/
+coverage/
+*.tsbuildinfo
+
+# ---------- Astro ----------
+.astro/
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.egg-info/
+Pipfile.lock
+poetry.lock
+uv.lock
+
+# ---------- Go / Rust / Java ----------
+*.exe
+*.dll
+*.so
+*.dylib
+target/
+Cargo.lock
+
+# ---------- Databases ----------
+*.sqlite
+*.sqlite3
+*.db
+dump.sql
+*.rdb
+
+# ---------- Logs / Temp ----------
+*.log
+tmp/
+temp/
+
+# ---------- Local config ----------
+.local/
+local.env
