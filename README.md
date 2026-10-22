@@ -24,6 +24,7 @@ npm run dev               # локальный сервер на http://localhos
 | `npm run build` | Сборка статического сайта в `dist/` |
 | `npm run preview` | Локальный просмотр собранного сайта |
 | `npm run collect` | Сбор материалов из источников в `data/materials.json` |
+| `npm run backfill:translations` | Перевод уже собранных иноязычных материалов на русский |
 
 ## Структура проекта
 

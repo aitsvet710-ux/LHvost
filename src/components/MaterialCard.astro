@@ -3,6 +3,7 @@ import type { Material } from '../lib/types';
 import { CATEGORY_META, SOURCE_ICONS, SOURCE_LABELS } from '../lib/categories';
 import { getCoverForMaterial } from '../lib/covers';
 import { formatDate, readingTimeRu, relativeDateRu, withBase } from '../lib/utils';
+import TranslationBadge from './TranslationBadge.astro';
 
 interface Props {
   material: Material;
@@ -90,6 +91,7 @@ const coverAlt = `Иллюстрация рубрики «${material.category}»
         {relativeDateRu(material.publishedAt)}
       </time>
 
+      <TranslationBadge material={material} />
       <span
         class="ml-auto inline-flex items-center gap-1 rounded-chip bg-sand-100 px-2 py-1 font-medium text-graphite-600"
       >

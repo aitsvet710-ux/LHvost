@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Tag from '../components/Tag.astro';
+import TranslationBadge from '../components/TranslationBadge.astro';
 import { getAllMaterials } from '../lib/data';
 import { getCategoryCover, getCategoryCoverPath } from '../lib/covers';
 import { formatDate, readingTimeRu, relativeDateRu, withBase } from '../lib/utils';
@@ -79,7 +80,11 @@ const related = getAllMaterials()
           >
             {readLabel}
           </span>
+          <TranslationBadge material={material} />
         </div>
+        {material.translated && (
+          <p class="mt-2 text-xs text-graphite-500">Переведено автоматически</p>
+        )}
       </header>
 
       {material.summary && (

@@ -8,6 +8,7 @@ import { categorize, extractTags } from './categorize';
 import { isValuable } from './filter';
 import { normalize, type RawMaterial } from './normalize';
 import { loadEnvFile, summarize } from './ai/summarize';
+import { translateMaterial, translateToRussian } from './ai/translate';
 import { collectRss } from './adapters/rss';
 import { collectTelegramPublic, collectTelegramViaApi } from './adapters/telegram';
 import { collectYoutube } from './adapters/youtube';
@@ -233,7 +234,25 @@ async function main(): Promise<void> {
 
   const normalized = raw.map(normalize);
 
-  const passed = normalized.filter(material => {
+  // Переводим иноязычные материалы до фильтра — фильтр смотрит на русский текст.
+  const localized: RawMaterial[] = [];
+  for (const material of normalized) {
+    const translated = await translateMaterial(
+      material.title,
+      material.description,
+      `${material.title} ${material.description ?? ''}`,
+      aiConfig
+    );
+    localized.push({
+      ...material,
+      title: translated.title,
+      description: translated.description,
+      translated: translated.translated,
+      sourceLang: translated.sourceLang
+    });
+  }
+
+  const passed = localized.filter(material => {
     const verdict = isValuable(material);
     if (!verdict.passed) {
       console.log(`  ✗ отсеян: ${material.title.slice(0, 60)} — ${verdict.reason}`);
@@ -256,11 +275,12 @@ async function main(): Promise<void> {
   for (const material of toProcess) {
     console.log(`  • ${material.title.slice(0, 70)}`);
     const summary = await summarize(material, aiConfig);
+    const summaryTranslation = await translateToRussian(summary, material.sourceLang, aiConfig);
     processed.push({
       id: makeId(material),
       slug: makeSlug(material),
       title: material.title,
-      summary,
+      summary: summaryTranslation.text,
       url: material.url,
       source: material.source,
       sourceType: material.sourceType,
@@ -270,7 +290,9 @@ async function main(): Promise<void> {
       tags: extractTags(material),
       description: material.description,
       imageUrl: material.imageUrl,
-      collectedAt: new Date().toISOString()
+      collectedAt: new Date().toISOString(),
+      translated: material.translated === true || summaryTranslation.translated || false,
+      sourceLang: material.sourceLang
     });
   }
 
