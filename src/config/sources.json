@@ -1,0 +1,42 @@
+{
+  "telegram": [
+    {
+      "name": "@stolyarka_vmeste",
+      "enabled": true,
+      "notes": "Открытый канал столяров: анонсы, мастер-классы, разборы проектов. Публичный вид t.me/s/<канал>."
+    },
+    {
+      "name": "@kstolyar",
+      "enabled": true,
+      "notes": "Канал мастера по деревообработке: обзоры инструментов и техника работ."
+    }
+  ],
+  "rss": [
+    {
+      "name": "Fine Woodworking",
+      "url": "https://www.finewoodworking.com/rss",
+      "enabled": true,
+      "notes": "Англоязычный журнал о столярном деле. Переводится автоматически."
+    },
+    {
+      "name": "Popular Woodworking",
+      "url": "https://www.popularwoodworking.com/rss",
+      "enabled": false,
+      "notes": "Американское столярное издание. Включать после проверки доступности RSS."
+    },
+    {
+      "name": "Stoljar.ru",
+      "url": "https://www.stoljar.ru/feed/",
+      "enabled": false,
+      "notes": "RSS-лента русскоязычного столярного портала. Включать после проверки доступности."
+    }
+  ],
+  "youtube": [
+    {
+      "name": "Столярные мастер-классы",
+      "url": "",
+      "enabled": false,
+      "notes": "Укажите channel_id или ссылку https://www.youtube.com/channel/<id>/."
+    }
+  ]
+}

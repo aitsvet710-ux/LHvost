@@ -1,49 +1,127 @@
-# LHvost
+# Ласточкин хвост
 
-Проект **LHvost** — рабочая папка на интенсиве.
+Дайджест столярного ремесла: инструменты, чертежи, техника и приёмы, безопасность, события и
+вдохновение для тех, кто работает с деревом.
 
-## Описание
+Статический сайт на Astro + Tailwind CSS v4. Материалы собираются из Telegram, RSS и YouTube,
+нормализуются, фильтруются, раскладываются по рубрикам, переводятся на русский и складываются в
+`data/materials.json`.
 
-Здесь будет храниться исходный код, документация и связанные с проектом материалы.
+## Быстрый старт
 
-## Структура
-
+```bash
+npm install
+cp .env.example .env      # ключи не обязательны: без них работает fallback
+npm run collect           # собрать материалы в data/materials.json
+npm run dev               # локальный сервер на http://localhost:4321
 ```
+
+## Команды
+
+| Команда | Что делает |
+| --- | --- |
+| `npm run dev` | Локальный сервер разработки с горячей перезагрузкой |
+| `npm run build` | Сборка статического сайта в `dist/` |
+| `npm run preview` | Локальный просмотр собранного сайта |
+| `npm run collect` | Сбор материалов из источников в `data/materials.json` |
+
+## Структура проекта
+
+```text
 LHvost/
-├── README.md      — описание проекта
-└── .gitignore     — правила исключения файлов из git
+├── data/
+│   └── materials.json      — собранные материалы (коммитится)
+├── public/
+│   ├── favicon.svg         — иконка сайта
+│   └── images/
+│       └── categories/     — обложки рубрик (по одной на рубрику + default.webp)
+├── scripts/
+│   ├── collect.ts          — точка входа конвейера сбора
+│   ├── adapters/           — telegram.ts, rss.ts, youtube.ts
+│   ├── ai/                 — summarize.ts, translate.ts
+│   ├── cache/              — кэш переводов (translations.json)
+│   ├── categorize.ts       — рубрика и теги
+│   ├── filter.ts           — отсев неценного
+│   └── normalize.ts        — приведение к общей схеме
+├── src/
+│   ├── components/         — Header, Footer, MaterialCard, Tag, Filters, StatsBand…
+│   ├── config/             — site.json, sources.json, ai.json
+│   ├── layouts/            — BaseLayout.astro
+│   ├── lib/                — types.ts, utils.ts, data.ts, categories.ts, covers.ts
+│   ├── pages/              — index.astro, archive.astro, [slug].astro
+│   └── styles/             — global.css (@theme с палитрой)
+├── .github/workflows/      — CI: сборка, аудит зависимостей, деплой
+├── .env.example            — имена переменных без значений
+├── AGENTS.md               — инварианты и правила проекта
+└── astro.config.mjs        — конфигурация Astro, base: /LHvost
 ```
 
-## Как работать
+## Рубрики
 
-### Клонирование
+`Инструмент` · `Проект/чертёж` · `Техника и приёмы` · `Безопасность` · `События/выставки` ·
+`Вдохновение`
 
-```bash
-git clone https://github.com/aitsvet710-ux/LHvost.git
-cd LHvost
-```
+Новые рубрики добавляются в три места: union `Category` в `src/lib/types.ts`, ключевые слова в
+`scripts/categorize.ts`, метка в `src/components/Tag.astro`. Существующие рубрики не переименовываются.
 
-### Основные команды
+## Источники
 
-```bash
-git status            # состояние рабочей копии
-git add .             # добавить изменения в индекс
-git commit -m "..."   # создать коммит
-git push              # отправить изменения на GitHub
-git pull              # забрать изменения из GitHub
-```
+Источники описаны в `src/config/sources.json`: Telegram, RSS и YouTube. Смена источника — правка
+`scripts/collect.ts` и/или добавление адаптера; интерфейс о внешних источниках ничего не знает.
 
-### Ветки
+Чтобы включить источник, поставьте ему `"enabled": true`. Адаптеры изолируют сбои: если один
+источник недоступен, остальные продолжают работают, а `npm run collect` не падает.
 
-```bash
-git switch -c feature/name   # создать и переключиться на ветку
-git push -u origin feature/name
-```
+## Ключи и переменные окружения
 
-## Стек
+Ключи хранятся только в `.env` (файл в `.gitignore`). Шаблон с именами переменных без значений —
+`.env.example`:
 
-_Будет уточнено по мере развития проекта._
+| Переменная | Назначение |
+| --- | --- |
+| `OPENROUTER_API_KEY` | Суммаризация и перевод материалов через OpenRouter |
+| `LLM_API_KEY` | Запасной ключ OpenAI-совместимого API |
+| `IMAGE_GEN_API_KEY` | Генерация обложек по рубрикам (необязательно) |
+| `TELEGRAM_SESSION` | Прямой сбор из Telegram (необязательно) |
 
-## Лицензия
+Без ключей конвейер не падает: суммаризация берёт первые 200 символов описания, перевод
+пропускается, материал помечается как оригинал.
 
-Все права защищены.
+## Как отключить перевод
+
+В `src/config/ai.json` в блоке `translation` поставьте `"enabled": false`. Модель перевода задаётся
+только там — в коде она не зашита. Кэш переводов лежит в `scripts/cache/translations.json` и
+коммитится: повторный запуск сбора не делает новых запросов к API.
+
+## Палитра
+
+Все цвета объявлены в `src/styles/global.css` через `@theme` и используются в компонентах
+классами Tailwind (`bg-terracotta-600`, `text-graphite-900`). Inline-значений цветов в компонентах
+нет.
+
+| Роль | Цвет | Переменная |
+| --- | --- | --- |
+| Основной фон | `#faf6ee` | `--color-paper` |
+| Графит (текст) | `#1b1613` | `--color-graphite-900` |
+| Песочный | `#efe6d6` | `--color-sand-100` |
+| Терракота | `#c75b3f` | `--color-terracotta-500` |
+| Янтарь | `#e6a537` | `--color-amber-500` |
+| Тил | `#2b8a7a` | `--color-teal-500` |
+
+## Инварианты
+
+Коротко — подробно в [AGENTS.md](AGENTS.md):
+
+1. Все внутренние ссылки — через `withBase()` из `src/lib/utils.ts`.
+2. Tailwind v4: тема только в `@theme`, повторяемые стили — через `@utility`. Файла
+   `tailwind.config.mjs` нет.
+3. Ключи — только в `.env`, никогда не коммитить.
+4. `npm run collect` не падает на пустых ответах, отсутствии ключа и таймаутах.
+5. Весь текст интерфейса — на русском.
+6. `main` защищена: feature-ветка, PR, squash-merge, Conventional Commits.
+
+## Деплой
+
+Сборка публикуется через GitHub Pages по адресу
+`https://aitsvet710-ux.github.io/LHvost/`. Базовый путь задан в `astro.config.mjs`
+(`base: '/LHvost'`) — поэтому все внутренние ссылки идут через `withBase()`.

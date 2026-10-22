@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getSiteName, getTagline } from '../lib/site';
+import { withBase } from '../lib/utils';
+---
+
+<BaseLayout>
+  <section class="border-b border-sand-200 bg-gradient-to-b from-paper-100 via-paper to-paper">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:py-24">
+      <p class="badge bg-white text-terracotta-600 shadow-card">
+        <span class="h-1.5 w-1.5 rounded-full bg-terracotta-500" aria-hidden="true"></span>
+        Дайджест столярного ремесла
+      </p>
+
+      <h1 class="mt-5 font-serif text-5xl font-black leading-[1.02] tracking-tight text-graphite-900 sm:text-6xl">
+        {getSiteName()}
+      </h1>
+
+      <p class="mt-4 max-w-xl text-base leading-relaxed text-graphite-600 sm:text-lg">
+        {getTagline()}
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={withBase('/archive/')} class="btn-primary">Смотреть архив</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-16">
+    <div class="card p-10 text-center text-graphite-600">
+      <h2 class="font-serif text-2xl font-bold text-graphite-900">Сбор материалов — в работе</h2>
+      <p class="mx-auto mt-3 max-w-xl leading-relaxed">
+        Конвейер сбора ещё не подключён: на этой странице появится свежий выпуск из 5–7
+        материалов. Источники — Telegram, RSS и YouTube, рубрики — инструмент, проект и чертёж,
+        техника и приёмы, безопасность, события и вдохновение.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
