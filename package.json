@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "collect": "tsx scripts/collect.ts",
+    "typecheck": "tsc --noEmit",
     "astro": "astro"
   },
   "dependencies": {
